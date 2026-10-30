@@ -44,6 +44,24 @@ shares your settings, extensions, `/login` credentials, and sessions. If a
 Docker socket is present, it is mounted too, so `docker` commands run against
 your host daemon.
 
+### Extra volumes
+
+Pass `-v`/`--volume` (repeatable) to bind-mount extra volumes into the
+sandbox:
+
+```sh
+pi-sbx -v /data:/data -v ~/.cargo:/home/sbx/.cargo:ro
+```
+
+The value is passed verbatim to `docker run -v`. Mounts are fixed at
+container creation, and the requested mounts are recorded on the container:
+if you pass `-v` flags that don't match what the sandbox was created with,
+`pi-sbx` refuses to run and tells you to `pi-sbx rm` first (or drop the
+flags). A bare rerun without flags always works. User `-v` flags are added
+after the built-in mounts, so a user mount can override one of them —
+Docker applies the last matching mount. Note the delimiter: paths
+containing `;` can't be recorded correctly.
+
 The container can't reach the host clipboard, so the image sets
 `PI_CLIPBOARD_OSC52=1`: copies in pi also emit an OSC 52 escape sequence the
 host terminal applies. Requires an OSC-52-capable terminal (iTerm2, kitty,
